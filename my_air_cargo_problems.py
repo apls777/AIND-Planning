@@ -167,7 +167,7 @@ class AirCargoProblem(Problem):
         current_state = decode_state(state, self.state_map)
 
         # get a list of only positive literals, other literals are negative by default
-        pos = action.effect_add
+        pos = list(action.effect_add)
         for literal in current_state.pos:
             if literal not in action.effect_rem:
                 pos.append(literal)
