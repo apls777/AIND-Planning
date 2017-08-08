@@ -137,15 +137,15 @@ class AirCargoProblem(Problem):
             check = True
 
             # check positive preconditions
-            for clause in action.precond_pos:
-                if clause not in current_state.pos:
+            for literal in action.precond_pos:
+                if literal not in current_state.pos:
                     check = False
                     break
 
             # check negative preconditions
             if check:
-                for clause in action.precond_neg:
-                    if clause in current_state.pos:
+                for literal in action.precond_neg:
+                    if literal in current_state.pos:
                         check = False
                         break
 
@@ -166,11 +166,11 @@ class AirCargoProblem(Problem):
         """
         current_state = decode_state(state, self.state_map)
 
-        # get a list of only positive clauses, other clauses are negative by default
+        # get a list of only positive literals, other literals are negative by default
         pos = action.effect_add
-        for clause in current_state.pos:
-            if clause not in action.effect_rem:
-                pos.append(clause)
+        for literal in current_state.pos:
+            if literal not in action.effect_rem:
+                pos.append(literal)
 
         return encode_state(FluentState(pos, []), self.state_map)
 
@@ -211,13 +211,17 @@ class AirCargoProblem(Problem):
         conditions by ignoring the preconditions required for an action to be
         executed.
         """
-        # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
+        state = decode_state(node.state, self.state_map)
         count = 0
+        for literal in self.goal:
+            if literal not in state.pos:
+                count += 1
+
         return count
 
 
-def get_negative_clauses(positive_clauses: list, cargos: list, planes: list, airports: list) -> list:
-    # generate negative clauses
+def get_negative_literals(positive_literals: list, cargos: list, planes: list, airports: list) -> list:
+    # generate negative literals
     neg = []
     for a in airports:
         for c in cargos:
@@ -230,9 +234,9 @@ def get_negative_clauses(positive_clauses: list, cargos: list, planes: list, air
         for p in planes:
             neg.append(expr('In({}, {})'.format(c, p)))
 
-    # remove positive clauses from negative list
-    for clause in positive_clauses:
-        neg.remove(clause)
+    # remove positive literals from negative list
+    for literal in positive_literals:
+        neg.remove(literal)
 
     return neg
 
@@ -276,7 +280,7 @@ def air_cargo_p2() -> AirCargoProblem:
            expr('At(P3, ATL)'),
            ]
 
-    init = FluentState(pos, get_negative_clauses(pos, cargos, planes, airports))
+    init = FluentState(pos, get_negative_literals(pos, cargos, planes, airports))
     goal = [expr('At(C1, JFK)'),
             expr('At(C2, SFO)'),
             expr('At(C3, SFO)'),
@@ -298,7 +302,7 @@ def air_cargo_p3() -> AirCargoProblem:
            expr('At(P2, JFK)'),
            ]
 
-    init = FluentState(pos, get_negative_clauses(pos, cargos, planes, airports))
+    init = FluentState(pos, get_negative_literals(pos, cargos, planes, airports))
     goal = [expr('At(C1, JFK)'),
             expr('At(C2, SFO)'),
             expr('At(C3, JFK)'),
