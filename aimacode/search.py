@@ -5,8 +5,8 @@ then create problem instances and solve them with calls to the various search
 functions."""
 
 from .utils import (
-    is_in, memoize, print_table, Stack, FIFOQueue, PriorityQueue, name
-)
+    is_in, memoize, print_table, Stack, FIFOQueue, PriorityQueue, name,
+    FIFODictQueue)
 
 import sys
 
@@ -184,6 +184,7 @@ def breadth_first_search(problem):
     if problem.goal_test(node.state):
         return node
     frontier = FIFOQueue()
+    # frontier = FIFODictQueue() # with this improvement BFS becomes faster than UCS
     frontier.append(node)
     explored = set()
     while frontier:

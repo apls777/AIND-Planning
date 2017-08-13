@@ -576,6 +576,31 @@ class FIFOQueue(Queue):
         return item in self.A[self.start:]
 
 
+class FIFODictQueue(FIFOQueue):
+
+    """A FIFO Queue with dictionary for quick lookups."""
+
+    def __init__(self):
+        super().__init__()
+        self._A = defaultdict(lambda: 0)
+
+    def append(self, item):
+        super().append(item)
+        self._A[item] += 1
+
+    def pop(self):
+        e = super().pop()
+        self._A[e] -= 1
+        return e
+
+    def __contains__(self, item):
+        return self._A[item] > 0
+
+    def __getitem__(self, key):
+        if self._A[key] > 0:
+            return key
+
+
 class PriorityQueue(Queue):
     """A queue in which the minimum element (as determined by f and
     order) is returned first.  Also supports dict-like lookup.
